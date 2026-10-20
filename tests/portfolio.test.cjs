@@ -1,0 +1,23 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+const script=html.match(/<script>([\s\S]*)<\/script>/)[1];
+const elements=new Map(),storage=new Map();
+function node(selector){if(!elements.has(selector))elements.set(selector,{innerHTML:'',textContent:'',value:'',classList:{add(){},toggle(){}},setAttribute(){},removeAttribute(){},addEventListener(){},focus(){},showModal(){this.open=true},close(){this.open=false},style:{}});return elements.get(selector)}
+const sessionStorage={getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)};
+const ctx=vm.createContext({crypto:require('node:crypto').webcrypto,Date,Intl,console,sessionStorage,document:{querySelector:node,querySelectorAll:()=>[],addEventListener(){}},setTimeout(){},clearTimeout(){},scrollTo(){},confirm:()=>true,alert(){}});
+vm.runInContext(script,ctx);
+const run=s=>vm.runInContext(s,ctx);
+assert.equal(run('S.tx.length'),27);
+assert.equal(run('SES'),null);
+assert.match(node('#stt').textContent+node('#v').innerHTML,/DEMO/);
+assert.equal(run('typeof fetch'),'undefined');
+assert.equal(run('typeof api'),'undefined');
+assert.equal(run('typeof login'),'undefined');
+assert.equal(run("Object.keys(BANK_BALANCES).length"),2);
+run("S.tx.pop();save();load()");assert.equal(run('S.tx.length'),26,'same tab reload keeps demo edits');
+run('resetDemo()');assert.equal(run('S.tx.length'),27,'reset restores only fictional fixtures');
+run("go('cal')");assert.match(node('#v').innerHTML,/Días con más gasto/);
+run("go('set')");assert.match(node('#v').innerHTML,/Restablecer demo/);
+assert.doesNotMatch(node('#v').innerHTML,/p_secret|apikey|Cerrar sesión/);
+assert.ok(html.includes("connect-src 'none'"));
+console.log('Portfolio demo: fictional seed, session isolation, no API/auth transport, reset and navigation verified.');
