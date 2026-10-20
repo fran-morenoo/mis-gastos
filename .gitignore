@@ -1,0 +1,12 @@
+# Private banking material and local configuration
+*.pem
+*.key
+*.p12
+.env
+.env.*
+!.env.example
+.banking-private/
+copias/
+node_modules/
+.DS_Store
+*.zip

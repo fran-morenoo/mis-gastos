@@ -1,0 +1,14 @@
+{
+  "name": "mis-gastos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal finance app with a safe interactive portfolio demo and banking backend reference.",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "node scripts/test.cjs",
+    "start": "node scripts/serve.cjs",
+    "check:public": "node scripts/check-public.cjs"
+  }
+}
